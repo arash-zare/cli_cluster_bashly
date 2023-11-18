@@ -1,0 +1,117 @@
+name: elk_cli
+help: Command line interface for ELK applications --- Derak Cloud All right received
+version: 0.1.0
+
+environment_variables:
+- name: base_path
+  help: Path of the application that docker compose files are located
+  default: /opt/elk/
+
+commands:
+- name: ps
+  alias: p
+  help: Show process of docker
+
+  args:
+  - name: source
+    required: true
+    help: URL to download from
+  - name: target
+    help: "Target filename (default: same as source)"
+
+  flags:
+  - long: --force
+    short: -f
+    help: Overwrite existing files
+
+  examples:
+  - cli download example.com
+  - cli download example.com ./output -f
+
+  environment_variables:
+  - name: default_target_location
+    help: Set the default location to download to
+
+- name: up
+  help: Start elk cluster 
+  args:
+    - name: service
+      help: Specific service name to up
+      default: all
+      allowed:
+        - "all"
+        - "es"
+        - "logstash"
+        - "kibana"
+
+- name: down
+  help: Stop elk cluster 
+
+- name: stop
+  help: Stop service of elk cluster
+  args:
+    - name: service
+      help: Specific service name to stop
+      default: all
+      allowed:
+        - "all"
+        - "es"
+        - "logstash"
+        - "kibana"
+
+- name: logs
+  help: Show logs of elk cluster
+  args:
+    - name: service
+      help: Specific service name to show logs
+      default: all
+      allowed:
+        - "all"
+        - "es"
+        - "logstash"
+        - "kibana"
+
+- name: restart
+  help: Restart elk cluster
+  args:
+    - name: service
+      help: Specific service name to restart
+      default: all
+      allowed:
+        - "all"
+        - "es"
+        - "logstash"
+        - "kibana"
+
+- name: exec
+  help: Execute commands in the containers
+  args:
+    - name: service
+      required: true
+      help: Specific service to run command
+      allowed:
+        - "es"
+        - "logstash"
+        - "kibana"
+    - name: command
+      required: true
+      help: Command Passed down to the service
+
+# - name: upload
+#   alias: u
+#   help: Upload a file
+#   args:
+#   - name: source
+#     required: true
+#     help: File to upload
+
+#   flags:
+#   - long: --user
+#     short: -u
+#     arg: user
+#     help: Username to use for logging in
+#     required: true
+#   - long: --password
+#     short: -p
+#     arg: password
+#     help: Password to use for logging in

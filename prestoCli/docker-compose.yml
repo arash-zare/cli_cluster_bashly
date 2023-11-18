@@ -1,0 +1,31 @@
+version: '3'
+services:
+  presto-coordinator:
+    image: ahanaio/prestodb-sandbox
+    container_name: presto-coordinator
+    environment:
+      - node.environment=production
+      - node.id=coordinator
+      - coordinator=true
+      - discovery.uri=http://presto-coordinator:8080
+    ports:
+      - "8080:8080"
+    networks:
+      - presto-network
+
+  presto-worker:
+    image: ahanaio/prestodb-sandbox
+    container_name: presto-worker
+    environment:
+      - node.environment=production
+      - node.id=worker
+      - coordinator=false
+      - discovery.uri=http://presto-coordinator:8080
+    depends_on:
+      - presto-coordinator
+    networks:
+      - presto-network
+
+networks:
+  presto-network:
+    driver: bridge
