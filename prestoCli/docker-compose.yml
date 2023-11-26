@@ -21,8 +21,8 @@ services:
       - node.id=worker
       - coordinator=false
       - discovery.uri=http://presto-coordinator:8080
-    depends_on:
-      - presto-coordinator
+#    depends_on:
+#      - presto-coordinator
     networks:
       - presto-network
 

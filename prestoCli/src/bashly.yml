@@ -32,6 +32,14 @@ commands:
   - name: default_target_location
     help: Set the default location to download to
 
+
+- name: down
+  help: Stop presto cluster
+  args:
+    - name: service
+      help: Specific service name to stop
+
+        
 - name: up
   help: Start presto cluster 
   args:
@@ -40,11 +48,8 @@ commands:
       default: all
       allowed:
         - "all"
-        - "presto"
-
-- name: down
-  help: Stop presto cluster 
-
+        - "presto-coordinator"
+        - "presto-worker"
 - name: stop
   help: Stop service of presto cluster
   args:
@@ -53,7 +58,8 @@ commands:
       default: all
       allowed:
         - "all"
-        - "presto"
+        - "presto-coordinator"
+        - "presto-worker"
 
 - name: logs
   help: Show logs of presto cluster
@@ -63,7 +69,8 @@ commands:
       default: all
       allowed:
         - "all"
-        - "presto"
+        - "presto-coordinator"
+        - "presto-worker"
 
 
 - name: restart
@@ -74,7 +81,8 @@ commands:
       default: all
       allowed:
         - "all"
-        - "presto"
+        - "presto-coordinator"
+        - "presto-worker"
 
 
 - name: exec
@@ -84,7 +92,8 @@ commands:
       required: true
       help: Specific service to run command
       allowed:
-        - "presto"
+        - "presto-coordinator"
+        - "presto-worker"
     - name: command
       required: true
       help: Command Passed down to the service

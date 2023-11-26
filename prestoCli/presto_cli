@@ -35,8 +35,8 @@ presto_cli_usage() {
   # :command.usage_commands
   printf "%s\n" "Commands:"
   printf "  %s   Show process of docker\n" "ps     "
-  printf "  %s   Start presto cluster\n" "up     "
   printf "  %s   Stop presto cluster\n" "down   "
+  printf "  %s   Start presto cluster\n" "up     "
   printf "  %s   Stop service of presto cluster\n" "stop   "
   printf "  %s   Show logs of presto cluster\n" "logs   "
   printf "  %s   Restart presto cluster\n" "restart"
@@ -133,6 +133,43 @@ presto_cli_ps_usage() {
 }
 
 # :command.usage
+presto_cli_down_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "presto_cli down - Stop presto cluster\n"
+    echo
+
+  else
+    printf "presto_cli down - Stop presto cluster\n"
+    echo
+
+  fi
+
+  printf "%s\n" "Usage:"
+  printf "  presto_cli down [SERVICE]\n"
+  printf "  presto_cli down --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n $long_usage ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "SERVICE"
+    printf "    Specific service name to stop\n"
+    echo
+
+  fi
+}
+
+# :command.usage
 presto_cli_up_usage() {
   if [[ -n $long_usage ]]; then
     printf "presto_cli up - Start presto cluster\n"
@@ -164,37 +201,8 @@ presto_cli_up_usage() {
     # :argument.usage
     printf "  %s\n" "SERVICE"
     printf "    Specific service name to up\n"
-    printf "    Allowed: all, presto\n"
+    printf "    Allowed: all, presto-coordinator, presto-worker\n"
     printf "    Default: all\n"
-    echo
-
-  fi
-}
-
-# :command.usage
-presto_cli_down_usage() {
-  if [[ -n $long_usage ]]; then
-    printf "presto_cli down - Stop presto cluster\n"
-    echo
-
-  else
-    printf "presto_cli down - Stop presto cluster\n"
-    echo
-
-  fi
-
-  printf "%s\n" "Usage:"
-  printf "  presto_cli down\n"
-  printf "  presto_cli down --help | -h\n"
-  echo
-
-  # :command.long_usage
-  if [[ -n $long_usage ]]; then
-    printf "%s\n" "Options:"
-
-    # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
-    printf "    Show this help\n"
     echo
 
   fi
@@ -232,7 +240,7 @@ presto_cli_stop_usage() {
     # :argument.usage
     printf "  %s\n" "SERVICE"
     printf "    Specific service name to stop\n"
-    printf "    Allowed: all, presto\n"
+    printf "    Allowed: all, presto-coordinator, presto-worker\n"
     printf "    Default: all\n"
     echo
 
@@ -271,7 +279,7 @@ presto_cli_logs_usage() {
     # :argument.usage
     printf "  %s\n" "SERVICE"
     printf "    Specific service name to show logs\n"
-    printf "    Allowed: all, presto\n"
+    printf "    Allowed: all, presto-coordinator, presto-worker\n"
     printf "    Default: all\n"
     echo
 
@@ -310,7 +318,7 @@ presto_cli_restart_usage() {
     # :argument.usage
     printf "  %s\n" "SERVICE"
     printf "    Specific service name to restart\n"
-    printf "    Allowed: all, presto\n"
+    printf "    Allowed: all, presto-coordinator, presto-worker\n"
     printf "    Default: all\n"
     echo
 
@@ -349,7 +357,7 @@ presto_cli_exec_usage() {
     # :argument.usage
     printf "  %s\n" "SERVICE"
     printf "    Specific service to run command\n"
-    printf "    Allowed: presto\n"
+    printf "    Allowed: presto-coordinator, presto-worker\n"
     echo
 
     # :argument.usage
@@ -433,21 +441,7 @@ presto_cli_ps_command() {
   else
       eval "docker-compose $docker_compose_file_path ps $service"
   fi
-}
 
-# :command.function
-presto_cli_up_command() {
-  # src/up_command.sh
-  docker_compose_prefix_builder "$(declare -p args)"
-
-  service=${args[service]}
-
-  if [ $service == "all" ]
-  then
-      eval "docker-compose $docker_compose_file_path up -d"
-  else
-      eval "docker-compose $docker_compose_file_path up -d $service"
-  fi
 }
 
 # :command.function
@@ -461,6 +455,22 @@ presto_cli_down_command() {
 }
 
 # :command.function
+presto_cli_up_command() {
+  # src/up_command.sh
+  docker_compose_prefix_builder "$(declare -p args)"
+
+  service=${args[service]}
+
+  if [ $service == "all" ]
+  then
+      eval "docker-compose $docker_compose_file_path up -d "
+  else
+      eval "docker-compose $docker_compose_file_path up -d $service"
+  fi
+
+}
+
+# :command.function
 presto_cli_stop_command() {
   # src/stop_command.sh
   docker_compose_prefix_builder "$(declare -p args)"
@@ -469,10 +479,11 @@ presto_cli_stop_command() {
 
   if [ $service == "all" ]
   then
-      eval "docker-compose $docker_compose_file_path stop"
+      eval "docker-compose $docker_compose_file_path stop "
   else
       eval "docker-compose $docker_compose_file_path stop $service"
   fi
+
 }
 
 # :command.function
@@ -488,6 +499,7 @@ presto_cli_logs_command() {
   else
       eval "docker-compose $docker_compose_file_path logs -f --tail=300 $service "
   fi
+
 }
 
 # :command.function
@@ -503,6 +515,7 @@ presto_cli_restart_command() {
   else
       eval "docker-compose $docker_compose_file_path restart $service"
   fi
+
 }
 
 # :command.function
@@ -552,17 +565,17 @@ parse_requirements() {
       shift $#
       ;;
 
-    up)
-      action="up"
-      shift
-      presto_cli_up_parse_requirements "$@"
-      shift $#
-      ;;
-
     down)
       action="down"
       shift
       presto_cli_down_parse_requirements "$@"
+      shift $#
+      ;;
+
+    up)
+      action="up"
+      shift
+      presto_cli_up_parse_requirements "$@"
       shift $#
       ;;
 
@@ -698,6 +711,56 @@ presto_cli_ps_parse_requirements() {
 }
 
 # :command.parse_requirements
+presto_cli_down_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    case "${1:-}" in
+      --help | -h)
+        long_usage=yes
+        presto_cli_down_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="down"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        if [[ -z ${args['service']+x} ]]; then
+
+          args['service']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+}
+
+# :command.parse_requirements
 presto_cli_up_parse_requirements() {
   # :command.fixed_flags_filter
   while [[ $# -gt 0 ]]; do
@@ -749,54 +812,10 @@ presto_cli_up_parse_requirements() {
   [[ -n ${args['service']:-} ]] || args['service']="all"
 
   # :command.whitelist_filter
-  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(all|presto)$ ]]; then
-    printf "%s\n" "service must be one of: all, presto" >&2
+  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(all|presto-coordinator|presto-worker)$ ]]; then
+    printf "%s\n" "service must be one of: all, presto-coordinator, presto-worker" >&2
     exit 1
   fi
-
-}
-
-# :command.parse_requirements
-presto_cli_down_parse_requirements() {
-  # :command.fixed_flags_filter
-  while [[ $# -gt 0 ]]; do
-    case "${1:-}" in
-      --help | -h)
-        long_usage=yes
-        presto_cli_down_usage
-        exit
-        ;;
-
-      *)
-        break
-        ;;
-
-    esac
-  done
-
-  # :command.command_filter
-  action="down"
-
-  # :command.parse_requirements_while
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-
-      -?*)
-        printf "invalid option: %s\n" "$key" >&2
-        exit 1
-        ;;
-
-      *)
-        # :command.parse_requirements_case
-        # :command.parse_requirements_case_simple
-        printf "invalid argument: %s\n" "$key" >&2
-        exit 1
-
-        ;;
-
-    esac
-  done
 
 }
 
@@ -852,8 +871,8 @@ presto_cli_stop_parse_requirements() {
   [[ -n ${args['service']:-} ]] || args['service']="all"
 
   # :command.whitelist_filter
-  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(all|presto)$ ]]; then
-    printf "%s\n" "service must be one of: all, presto" >&2
+  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(all|presto-coordinator|presto-worker)$ ]]; then
+    printf "%s\n" "service must be one of: all, presto-coordinator, presto-worker" >&2
     exit 1
   fi
 
@@ -911,8 +930,8 @@ presto_cli_logs_parse_requirements() {
   [[ -n ${args['service']:-} ]] || args['service']="all"
 
   # :command.whitelist_filter
-  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(all|presto)$ ]]; then
-    printf "%s\n" "service must be one of: all, presto" >&2
+  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(all|presto-coordinator|presto-worker)$ ]]; then
+    printf "%s\n" "service must be one of: all, presto-coordinator, presto-worker" >&2
     exit 1
   fi
 
@@ -970,8 +989,8 @@ presto_cli_restart_parse_requirements() {
   [[ -n ${args['service']:-} ]] || args['service']="all"
 
   # :command.whitelist_filter
-  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(all|presto)$ ]]; then
-    printf "%s\n" "service must be one of: all, presto" >&2
+  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(all|presto-coordinator|presto-worker)$ ]]; then
+    printf "%s\n" "service must be one of: all, presto-coordinator, presto-worker" >&2
     exit 1
   fi
 
@@ -1040,8 +1059,8 @@ presto_cli_exec_parse_requirements() {
   fi
 
   # :command.whitelist_filter
-  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(presto)$ ]]; then
-    printf "%s\n" "service must be one of: presto" >&2
+  if [[ -n ${args['service']} ]] && [[ ! ${args['service']} =~ ^(presto-coordinator|presto-worker)$ ]]; then
+    printf "%s\n" "service must be one of: presto-coordinator, presto-worker" >&2
     exit 1
   fi
 
@@ -1069,8 +1088,8 @@ run() {
 
   case "$action" in
     "ps") presto_cli_ps_command ;;
-    "up") presto_cli_up_command ;;
     "down") presto_cli_down_command ;;
+    "up") presto_cli_up_command ;;
     "stop") presto_cli_stop_command ;;
     "logs") presto_cli_logs_command ;;
     "restart") presto_cli_restart_command ;;
