@@ -1,0 +1,62 @@
+name: hadoop-cli
+help: CLI to Build Hadoop
+version: 0.1.0
+
+environment_variables:
+  - name: base_path
+    help: Path of the application that docker compose files are located
+    default: /opt/hadoop/
+  - name: mode
+    help: The environment that application runs (dev OR prod)
+    required: true
+
+commands:
+  - name: up
+    help: Start Aqua services in detached mode
+    group: Maintenance
+    flags:
+      - long: --build
+        help: Build the image
+        default: false
+    args: &composeServices
+      - name: service
+        help: Specific service to up
+        default: all
+        allowed: [ datanode, all ]
+  - name: down
+    help: Stop Aqua services
+    flags:
+      - long: --full
+        help: Remove all volumes
+    args: *composeServices
+
+  - name: restart
+    help: Restart all Aqua services
+    args: *composeServices
+
+  - name: logs
+    help: Show Aqua services logs
+    args:
+      - name: service
+        help: Specific service to up
+        default: backend
+        allowed: [ datanode, all ]
+
+  - name: exec
+    help: Execute commands in the containers
+    args:
+      - name: service
+        required: true
+        help: Specific service to run command
+        allowed: [ datanode ]
+      - name: command
+        required: true
+        help: Command Passed down to the service
+
+  - name: build
+    group: Development
+    help: Only build Aqua service images
+    args: *composeServices
+
+  - name: pwd
+    help: Current working directory

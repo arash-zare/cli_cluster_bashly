@@ -1,0 +1,68 @@
+name: hadoop-cli
+help: CLI for hadoop cluster - single node
+version: 0.1.0
+
+environment_variables:
+- name: base_path
+  help: Path of the application that docker compose files are located
+  default: /opt/hadoop/
+    #- name: mode
+    #  help: The environment that application runs (master OR slave)
+    #  required: true
+
+
+commands:
+- name: up
+  help: start hadoop node
+  group: maintenance
+  flags:
+    - long: --build
+      help: build the image
+      default: false
+  #args: &composeServices
+  flags:
+    - long: --force
+      short: -f
+      help: Overwrite existing files
+  examples:
+    - cli download example.com
+    - cli download example.com ./output -f
+
+- name: down
+  help: Stop hadoop node
+  flags:
+    - long: --full
+      help: Remove all volumes
+        # args: *composeServices
+
+- name: restart
+  help: Restart all hadoop node
+ #args: *composeServices
+
+- name: logs
+  help: Show hadoop node logs
+  args:
+    - name: service
+      help: Specific service to up
+      default: datanode
+      allowed: [ datanode, all ]
+
+- name: exec
+  help: Execute commands in the containers
+  args:
+    - name: service
+      required: true
+      help: Specific service to run command
+      allowed: [ datanode ]
+    - name: command
+      required: true
+      help: Command Passed down to the service
+
+- name: build
+  group: Development
+  help: build hadoop image
+    #  args: *composeServices
+
+- name: pwd
+  help: Current working directory
+  

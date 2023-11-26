@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  datanode:
+        tty: true
+        image: hadoop:1
+        hostname: hadoop3.shz.data.derak.cloud
+        container_name: datanode
+        network_mode: host
+#        ports:
+#          - 50070:50070
+#          - 9000:9000
+#          - 8020:8020
+#          - 8088:8088
+#          - 222:22
+#        network_mode: host 
+#        environment:         
+        volumes:
+          - ./config/yarn-site.xml:/etc/hadoop/etc/hadoop/yarn-site.xml
+          - ./config/hdfs-site.xml:/etc/hadoop/etc/hadoop/hdfs-site.xml
+          - ./config/core-site.xml:/etc/hadoop/etc/hadoop/core-site.xml
+          - ./config/workers:/etc/hadoop/etc/hadoop/workers
+          #- ./config/yarn-site.xml:/etc/hadoop/etc/hadoop/yarn-site.xml
+#          - /hadoop/hdfs/namenode:/hadoop/hdfs/namenode
+#          - /hadoop/hdfs/secondarynamenode:/hadoop/hdfs/secondarynamenode
+#          - /hadoop/hdfs/journalnode:/hadoop/hdfs/journalnode
+          - /hadoop/hdfs/datanode:/hadoop/hdfs/datanode
+          - /hadoop/log/:/HADOOP_LOG_DIR
+          - ./config:/HADOOP_CONF_DIR
+        ulimits:
+          nofile:
+            soft: 262144
+            hard: 262144       
